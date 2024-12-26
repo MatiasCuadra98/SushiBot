@@ -5,7 +5,6 @@ const routes = require('./src/routes');
 require('dotenv').config();
 
 
-
 const app = express();
 const PORT = process.env.PORT;
 
@@ -23,5 +22,5 @@ app.get('/', (req, res) => {
 
 // Iniciar servidor
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`Server running! http://localhost:${PORT}`);
 });
