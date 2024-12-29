@@ -1,31 +1,39 @@
 const { Product } = require("../../models/orderModel");
 
 const createProduct = async (req, res) => {
-    const { name, stock } = req.body;
-
     try {
-        // Buscar si ya existe un producto con el mismo nombre
-        const existingProduct = await Product.findOne({ name }); // Corregimos aquí
-
-        if (existingProduct) {
-            // Si existe, actualizar el stock sumando el nuevo valor
-            existingProduct.stock += stock;
-            await existingProduct.save();
-
-            return res.json({
-                message: "Producto actualizado con éxito",
-                product: existingProduct,
-            });
-        }
-
-        // Si no existe, crear un nuevo producto
-        const product = new Product({ name, stock });
-        await product.save();
-
-        res.json({ message: "Producto agregado con éxito", product });
+      const { name, stock } = req.body;
+  
+      if (!name || !stock) {
+        return res.status(400).json({ message: 'Faltan datos requeridos.' });
+      }
+  
+      // Buscar si ya existe un producto con el mismo nombre
+      const existingProduct = await Product.findOne({ name });
+  
+      if (existingProduct) {
+        // Actualizar el stock sumando el nuevo valor
+        existingProduct.stock += stock;
+        await existingProduct.save();
+  
+        return res.status(200).json({
+          message: 'Stock actualizado con éxito',
+          product: existingProduct,
+        });
+      }
+  
+      // Crear un nuevo producto si no existe
+      const newProduct = new Product({ name, stock });
+      await newProduct.save();
+  
+      return res.status(201).json({
+        message: 'Producto agregado con éxito',
+        product: newProduct,
+      });
     } catch (error) {
-        res.status(500).json({ message: "Error al agregar o actualizar el producto", error });
+      console.error(error);
+      return res.status(500).json({ message: 'Error en el servidor.' });
     }
-};
+  };
 
 module.exports = createProduct;
