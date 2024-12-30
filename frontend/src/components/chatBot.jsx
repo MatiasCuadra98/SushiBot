@@ -17,7 +17,12 @@ const ChatBot = () => {
         dispatch(addMessage({ sender: 'user', text: trimmedInput }));
     
         try {
-            const response = await axios.post(`${API_URL}/api/chat`, { message: trimmedInput });
+            const orderRegex = /\d+\s*piezas\s*de\s*[\w\s]+/i;
+            const endpoint = orderRegex.test(trimmedInput) 
+            ? `${API_URL}/api/orders/message` 
+            : `${API_URL}/api/chat`;
+
+            const response = await axios.post(endpoint, { message: trimmedInput });
     
             if (response?.data?.reply) {
                 dispatch(addMessage({
