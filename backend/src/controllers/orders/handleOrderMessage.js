@@ -13,24 +13,24 @@ const handleOrderMessage = async (req, res) => {
   }
 
   const quantity = parseInt(match[1]);
-  const productName = match[2].toLowerCase();
+  const productName = match[2].trim().toLowerCase();
 
   try {
-    // Buscar el producto en la base de datos
+    // Buscar el producto en la base de datos con coincidencia exacta
     const product = await Product.findOne({
-      name: { $regex: new RegExp(productName, "i") },
+      name: { $regex: new RegExp(`^${productName}$`, "i") }, // Coincidencia exacta
     });
 
     if (!product) {
       return res.status(404).json({
-        reply: `Lo siento, no tenemos ${productName} disponible.`,
+        reply: `Lo siento, no entendí tu solicitud. No tenemos "${productName}" en nuestro menú. ¿Podrías intentarlo de nuevo?`,
       });
     }
 
     // Verificar el stock
     if (product.stock < quantity) {
       return res.json({
-        reply: `Lo siento, solo tenemos ${product.stock} piezas de ${productName} disponibles.`,
+        reply: `Lo siento, solo tenemos ${product.stock} piezas de ${product.name} disponibles.`,
       });
     }
 
@@ -46,7 +46,7 @@ const handleOrderMessage = async (req, res) => {
     await product.save();
 
     return res.json({
-      reply: `¡Perfecto! Se han registrado ${quantity} piezas de ${productName}. ¡Disfruta tu sushi! 🎉`,
+      reply: `¡Perfecto! Se han registrado ${quantity} piezas de ${product.name}. ¡Disfruta tu sushi! 🎉`,
     });
   } catch (error) {
     console.error("Error procesando el pedido:", error);
